@@ -9,25 +9,26 @@ A nascent experiment utilizing docker-compose to build Arvados.
 
 ## getting started
 
-This entire deployment is configured around a chain of environment variables.
-All of these variables are sourced from a single file that contains the
-entire set.  Use the script "env.sh" to build a new boiler
-plate environment.
+This deployment framework is configured around a chain of environment
+variables, and all of these variables are sourced from a single file that
+contains the complete set.  Use the script "env.sh" to build a new boiler plate
+environment.
 
 ```bash
 ./env.sh dev.arvados > dev.arvados.env
 ```
 
-You also need to export one variable, `ARVADOS_DOMAIN` to your domain:
+In order to tie `docker-compose` to your config, you need to export one
+variable, `ARVADOS_DOMAIN` to your running environment:
 
 ```bash
 export ARVADOS_DOMAIN=arvados.dev
 ```
 
-Now that you've made your boilerplate, you can now proceed to build your
-images.  You will only need to do this once; changing a configuration variable
-derived from the environment does not require that you re-run the build, only
-restart the affected containers.
+Now that you've made your boilerplate, you can proceed to build your images.
+You will only need to do this once; changing a configuration variable derived
+from the environment does not require that you re-run the build, only restart
+the affected containers.
 
 ```bash
 alias dcb="docker-compose build"
@@ -35,9 +36,9 @@ dcb base; dcb passenger; dcb
 ```
 
 If you are doing this from scratch, this will take 10-20mins.  While the build
-is churning away, open up your generated envionment file in your editor and
-adjust as needed.  Everything is setup to be ephermal, but you could easily
-store these config stubs in version control.
+is churning away, open up your generated environment file in your editor and
+adjust as needed.  Everything is setup to be ephemeral, but you could easily
+store these environment files in version control.
 
 Here is a cheatsheet with a few aliases to make it easier to type:
 
@@ -63,10 +64,11 @@ dcr <name> [cmd]    # spawn a new interactive command within a running container
 
 ## the future
 
-The intention with this method is to create a deployment set that can operate
-in a range of contexts: from a single host to a managed cluster of docker
-servers.  By breaking down the individual services, it should be possible to
-deploy a production system entirely with docker.
+The design goal for this work is to build a factory that can create fully
+functional Arvados deployments with infrastructure range: from a single host to
+a managed cluster.  By breaking down the individual services into their own
+docker images and leveraging runtime variables, it should be possible to deploy
+a test, development, and production system entirely with `docker-compose`.
 
 ## rough roadmap
 
