@@ -11,7 +11,7 @@ envsub()
         echo interpolate failed beause $tmpl doesn\'t end with ".tmpl"
         return
     fi
-    envsubst $tmpl > $target
+    envsubst < $tmpl > $target
 }
 
 dns_hostname_wait()
@@ -50,12 +50,14 @@ make_certs()
 
 init_nginx_conf()
 {
-    for tmplfn in /etc/conf.d/*.tmpl; do
+    for tmplfn in /etc/nginx/tmpl.d/*.tmpl; do
         envsub $tmplfn /etc/nginx/conf.d
     done
 }
 
 if [[ $# -eq 0 ]]; then
+    init_nginx_conf
+    make_certs
     dns_hostname_wait sso
     dns_hostname_wait api
     dns_hostname_wait workbench
