@@ -1,26 +1,29 @@
 #!/bin/bash
+set -e
 
-init_db() {
-    local touchfn=/var/run/api-init
-    source /etc/profile.d/rvm.sh
-    /wait-for-it.sh -h database -p 5432
-    if [[ `psql -tAc "SELECT 1 FROM pg_database WHERE datname='arvados_production'"` != "1" ]]; then
-        psql -c "CREATE ROLE arvados ENCRYPTED PASSWORD 'arvados' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;"
-        psql -c "CREATE DATABASE arvados_production OWNER arvados ENCODING 'UTF8' TEMPLATE template0;"
-    fi
-    if [ -e $touchfn ]; then
+. /etc/arvados/common.sh
+
+init_db()
+{
+    wait_on database 5432 0
+    db_name=arvados_$RAILS_ENV
+    if db_exists $db_name; then
         return
     fi
+    db_pipe << SQLEND
+CREATE ROLE arvados ENCRYPTED PASSWORD 'arvados' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;
+CREATE DATABASE $db_name OWNER arvados ENCODING 'UTF8' TEMPLATE template0;
+SQLEND
+}
+
+init_app()
+{
     dpkg-reconfigure arvados-api-server
     service nginx stop
 }
 
-init_envsh() {
-    export | grep -v HOME > /env
-    echo "#!/bin/bash" > /env.sh
-    echo ". /env" >> /env.sh
-    echo "exec /usr/local/rvm/wrappers/default/ruby \"\$@\"" >> /env.sh
-    chmod 755 /env.sh
+init_env() 
+{
     mkdir /env.puma
     echo "ws-only" > /env.puma/ARVADOS_WEBSOCKETS
     mkdir -p /var/www/arvados-api/current/tmp/cache/
@@ -29,8 +32,7 @@ init_envsh() {
 
 
 if [[ $# -eq 0 ]]; then
-    init_db
-    init_envsh
+    init
     exec /usr/sbin/runsvdir-start
 fi
 exec $@

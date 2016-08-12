@@ -30,3 +30,7 @@ RUN mkdir -p /tmp/src && \
     make -j8 && \
     make install && \
     sudo -i gem install bundler
+
+# copy tools over
+COPY wait-for-it.sh /usr/bin/wait-for-it
+COPY etc_arvados/ /etc/arvados

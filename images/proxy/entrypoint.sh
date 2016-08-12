@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 
-wait_on() {
+NGINX_CERT_DIR={$NGINX_CERT_DIR:-/certs}
+
+envsub()
+{
+    tmpl=$1
+    target_dir=$2
+    target=$target_dir/$(basename $tmpl .tmpl)
+    if test "$(basename $target)" == "$(basename $tmpl)"; then
+        echo interpolate failed beause $tmpl doesn\'t end with ".tmpl"
+        return
+    fi
+    envsubst $tmpl > $target
+}
+
+dns_hostname_wait()
+{
     hostname=$1
     echo "waiting for $hostname to have a resolvable name"
     while true; do
@@ -10,18 +25,6 @@ wait_on() {
         sleep 1;
     done
     echo "$hostname resolves!"
-}
-
-envsub()
-{
-    tmpl=$1
-    target_dir=$2
-    target=$target/$(basename $tmpl .tmpl)
-    if [ $(basename $target) == $(basename $tmpl) ]; then
-        echo interpolate failed beause $tmpl doesn\'t end with ".tmpl"
-        return
-    fi
-    envsubst $tmpl > $target
 }
 
 make_cert()
@@ -34,22 +37,29 @@ make_cert()
         -subj "/C=Earth/S=Earth/L=Earth/O=Earth/OU=Earth/CN=${fqdn}/emailAddress=humans@earth.com"
 }
 
-for tmplfn in /etc/conf.d/*.tmpl; do
-    envsub $tmplfn /etc/nginx/conf.d
-done
+make_certs()
+{
+    if test ! -d /certs; then
+        mkdir /certs
+        make_cert ${UUID_PREFIX}.${ARVADOS_DOMAIN}
+        make_cert ws.${UUID_PREFIX}.${ARVADOS_DOMAIN}
+        make_cert sso.${ARVADOS_DOMAIN}
+        make_cert workbench.${ARVADOS_DOMAIN}
+    fi
+}
 
-if test ! -d /certs; then
-    make_cert ${UUID_PREFIX}.${ARVADOS_DOMAIN}
-    make_cert ws.${UUID_PREFIX}.${ARVADOS_DOMAIN}
-    make_cert sso.${ARVADOS_DOMAIN}
-    make_cert workbench.${ARVADOS_DOMAIN}
-fi
+init_nginx_conf()
+{
+    for tmplfn in /etc/conf.d/*.tmpl; do
+        envsub $tmplfn /etc/nginx/conf.d
+    done
+}
 
-cd -
 if [[ $# -eq 0 ]]; then
-    wait_on sso
-    wait_on api
-    wait_on workbench
+    dns_hostname_wait sso
+    dns_hostname_wait api
+    dns_hostname_wait workbench
+
     exec nginx -g "daemon off;"
 fi
 exec "$@"

@@ -7,6 +7,10 @@ services:
         build: images/base/
         command: /bin/true
         image: cromulent/base
+        env_file:
+             - "$ARVADOS_DOMAIN.env"
+        networks:
+            - arvardos-net
 
     passenger:
         build: images/passenger/
@@ -20,14 +24,15 @@ services:
             - 443:443
         networks:
             - arvardos-net
+        env_file:
+             - "$ARVADOS_DOMAIN.env"
 
     database:
         image: postgres:9.3.13
         networks:
             - arvardos-net
-        environment:
-            - POSTGRES_PASSWORD=ibahahGho0EYaichieh6ietahsheagiN
-            - POSTGRES_USER=root
+        env_file:
+             - "$ARVADOS_DOMAIN.env"
 
     # SSO Server
     sso:
@@ -37,15 +42,8 @@ services:
             - proxy
         networks:
             - arvardos-net
-        environment:
-            - UUID_PREFIX=${UUID_PREFIX}
-            - SECRET_TOKEN=oodaeS3ejash9Woh1ahleeNg8soazahp
-            - SSO_DEFAULT_LINK_URL=http://sso.${ARVADOS_DOMAIN}
-            - POSTGRES_PASSWORD=Dib7auyaejao8aenu8aiTh4ribaeM6ai
-            - PGUSER=root
-            - PGPASSWORD=Dib7auyaejao8aenu8aiTh4ribaeM6ai
-            - PGHOST=database
-            - RAILS_ENV=production
+        env_file:
+             - "$ARVADOS_DOMAIN.env"
 
     # API Server
     api:
@@ -56,20 +54,8 @@ services:
             - proxy
         networks:
             - arvardos-net
-        environment:
-            - RAILS_ENV=production
-            - UUID_PREFIX=${UUID_PREFIX}
-            - VM_UUID_PREFIX=2s4uqhvwo1f21sp-${UUID_PREFIX}
-            - SECRET_TOKEN=oodaeS3ejash9Woh1ahleeNg8soazahp
-            - PGUSER=root
-            - PGPASSWORD=Dib7auyaejao8aenu8aiTh4ribaeM6ai
-            - PGHOST=database
-            - BLOB_SIGNING_KEY=AhquohPeeshahyoiKah2ahp1ciethu9x
-            - SSO_APP_ID=arvados-server
-            - SSO_APP_SECRET=phooshu9eewohBeengiePaequeje9bei
-            - SSO_PROVIDER_URL=https://sso.${ARVADOS_DOMAIN}
-            - WORKBENCH_ADDRESS=https://workbench.${ARVADOS_DOMAIN}
-            - WEBSOCKET_ADDRESS=wss://127.0.0.1:8100/websocket
+        env_file:
+             - "$ARVADOS_DOMAIN.env"
 
     # Workbench Server
     workbench:
@@ -80,13 +66,6 @@ services:
             - proxy
         networks:
             - arvardos-net
-        environment:
-            - UUID_PREFIX=${UUID_PREFIX}
-            - SECRET_TOKEN=oodaeS3ejash9Woh1ahleeNg8soazahp
-            - PGUSER=root
-            - PGPASSWORD=Dib7auyaejao8aenu8aiTh4ribaeM6ai
-            - PGHOST=database
-            - ARVADOS_LOGIN_BASE=http://${UUID_PREFIX}.${ARVADOS_DOMAIN}/login
-            - ARVADOS_V1_BASE=http://${UUID_PREFIX}.${ARVADOS_DOMAIN}/arvados/v1/
-            - ARVADOS_INSECURE_HTTPS=true
-            - RAILS_ENV=production
+        env_file:
+             - "$ARVADOS_DOMAIN.env"
+
