@@ -6,12 +6,14 @@ envsub()
 {
     tmpl=$1
     target_dir=$2
+    mask=$3
     target=$target_dir/$(basename $tmpl .tmpl)
     if test "$(basename $target)" == "$(basename $tmpl)"; then
         echo interpolate failed beause $tmpl doesn\'t end with ".tmpl"
         return
     fi
-    envsubst < $tmpl > $target
+    echo envsubst "$mask" IN $tmpl OUT $target
+    envsubst "$mask" < $tmpl > $target
 }
 
 dns_hostname_wait()
@@ -29,29 +31,30 @@ dns_hostname_wait()
 
 make_cert()
 {
-    fqdn=$1
+    outdir=$1
+    fqdn=$2
     openssl req \
         -nodes -new -x509 \
-        -keyout ${fqdn}.key \
-        -out ${fqdn}.crt \
-        -subj "/C=Earth/S=Earth/L=Earth/O=Earth/OU=Earth/CN=${fqdn}/emailAddress=humans@earth.com"
+        -keyout $outdir/${fqdn}.key \
+        -out $outdir/${fqdn}.crt \
+        -subj "/C=XX/ST=XX/L=Earth/O=Earth/OU=Earth/CN=${fqdn}/emailAddress=humans@earth.com"
 }
 
 make_certs()
 {
     if test ! -d /certs; then
         mkdir /certs
-        make_cert ${UUID_PREFIX}.${ARVADOS_DOMAIN}
-        make_cert ws.${UUID_PREFIX}.${ARVADOS_DOMAIN}
-        make_cert sso.${ARVADOS_DOMAIN}
-        make_cert workbench.${ARVADOS_DOMAIN}
+        make_cert /certs ${UUID_PREFIX}.${ARVADOS_DOMAIN}
+        make_cert /certs ws.${UUID_PREFIX}.${ARVADOS_DOMAIN}
+        make_cert /certs sso.${ARVADOS_DOMAIN}
+        make_cert /certs workbench.${ARVADOS_DOMAIN}
     fi
 }
 
 init_nginx_conf()
 {
     for tmplfn in /etc/nginx/tmpl.d/*.tmpl; do
-        envsub $tmplfn /etc/nginx/conf.d
+        envsub $tmplfn /etc/nginx/conf.d '${ARVADOS_DOMAIN} ${UUID_PREFIX}'
     done
 }
 
