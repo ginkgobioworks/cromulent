@@ -1,0 +1,152 @@
+proxy_http_version 1.1;
+error_log /dev/stdout info;
+
+geo $external_client {
+    default         1;
+    10.23.0.0/16    0;
+}
+
+upstream sso {
+    server sso:8900;
+}
+
+server {
+    server_name sso.${ARVADOS_DOMAIN};
+    listen 80;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://sso;
+    }
+}
+
+server {
+    server_name sso.${DOMAIN};
+    listen 443;
+    ssl on;
+    ssl_certificate     /certs/sso.${ARVADOS_DOMAIN}.crt;
+    ssl_certificate_key /certs/sso.${ARVADOS_DOMAIN}.key;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://sso;
+    }
+}
+
+upstream api {
+    server api:8000;
+}
+
+server {
+    server_name api.${ARVADOS_DOMAIN} ${UUID_PREFIX}.${ARVADOS_DOMAIN};
+    listen 80;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://api;
+        proxy_redirect        off;
+        proxy_connect_timeout 90s;
+        proxy_read_timeout    300s;
+
+        proxy_set_header      X-Forwarded-Proto https;
+        proxy_set_header      Host $http_host;
+        proxy_set_header      X-External-Client $external_client;
+        proxy_set_header      X-Real-IP $remote_addr;
+        proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+server {
+    server_name api.${ARVADOS_DOMAIN} ${UUID_PREFIX}.${ARVADOS_DOMAIN};
+    listen 443;
+    ssl on;
+    ssl_certificate     /certs/${UUID_PREFIX}.${ARVADOS_DOMAIN}.crt;
+    ssl_certificate_key /certs/${UUID_PREFIX}.${ARVADOS_DOMAIN}.key;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://api;
+        proxy_redirect        off;
+        proxy_connect_timeout 90s;
+        proxy_read_timeout    300s;
+
+        proxy_set_header      X-Forwarded-Proto https;
+        proxy_set_header      Host $http_host;
+        proxy_set_header      X-External-Client $external_client;
+        proxy_set_header      X-Real-IP $remote_addr;
+        proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+
+upstream websockets {
+    server api:8100;
+}
+
+server {
+    server_name websockets.${ARVADOS_DOMAIN} ws.${UUID_PREFIX}.${ARVADOS_DOMAIN};
+    listen 80;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://websockets;
+        proxy_redirect        off;
+        proxy_connect_timeout 90s;
+        proxy_read_timeout    300s;
+
+        proxy_set_header      X-Forwarded-Proto https;
+        proxy_set_header      Host $http_host;
+        proxy_set_header      X-External-Client $external_client;
+        proxy_set_header      X-Real-IP $remote_addr;
+        proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+server {
+    server_name websockets.${ARVADOS_DOMAIN} ws.${UUID_PREFIX}.${ARVADOS_DOMAIN};
+    listen 443;
+    ssl on;
+    ssl_certificate     /certs/ws.${UUID_PREFIX}.${ARVADOS_DOMAIN}.crt;
+    ssl_certificate_key /certs/ws.${UUID_PREFIX}.${ARVADOS_DOMAIN}.key;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://websockets;
+        proxy_redirect        off;
+        proxy_connect_timeout 90s;
+        proxy_read_timeout    300s;
+
+        proxy_set_header      X-Forwarded-Proto https;
+        proxy_set_header      Host $http_host;
+        proxy_set_header      X-External-Client $external_client;
+        proxy_set_header      X-Real-IP $remote_addr;
+        proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+upstream workbench {
+    server workbench:9000;
+}
+
+server {
+    server_name workbench.${ARVADOS_DOMAIN};
+    listen 80;
+    #access_log off;
+    access_log /dev/stdout;
+    location / {
+        proxy_pass http://workbench;
+    }
+}
+
+server {
+    server_name workbench.${ARVADOS_DOMAIN};
+    listen 443;
+    #access_log off;
+    access_log /dev/stdout;
+    ssl on;
+    ssl_certificate     /certs/workbench.${ARVADOS_DOMAIN}.crt;
+    ssl_certificate_key /certs/workbench.${ARVADOS_DOMAIN}.key;
+    location / {
+        proxy_pass http://workbench;
+    }
+}

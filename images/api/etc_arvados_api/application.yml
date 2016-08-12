@@ -1,0 +1,55 @@
+# Copy this file to application.yml and edit to suit.
+#
+# Consult application.default.yml for the full list of configuration
+# settings.
+#
+# The order of precedence is:
+# 1. config/environments/{RAILS_ENV}.rb (deprecated)
+# 2. Section in application.yml corresponding to RAILS_ENV (e.g., development)
+# 3. Section in application.yml called "common"
+# 4. Section in application.default.yml corresponding to RAILS_ENV
+# 5. Section in application.default.yml called "common"
+
+production:
+  # Mandatory site configuration.  See application.default.yml and
+  # http://http://doc.arvados.org/install/install-api-server.html#configure_application
+  # for more information.
+  uuid_prefix: <%= ENV['UUID_PREFIX'] %>
+  secret_token: <%= ENV['SECRET_TOKEN'] %>
+  blob_signing_key: <%= ENV['BLOB_SIGNING_KEY'] %>
+  sso_app_secret: <%= ENV['SSO_APP_SECRET'] %>
+  sso_app_id: <%= ENV['SSO_APP_ID'] %>
+  sso_provider_url: <%= ENV['SSO_PROVIDER_URL'] %>
+  workbench_address: <%= ENV['WORKBENCH_ADDRESS'] %>
+  websocket_address: <%= ENV['WEBSOCKET_ADDRESS'] %>
+  new_users_are_active: true
+  auto_admin_first_user: true
+  auto_setup_new_users: true
+  auto_setup_new_users_with_vm_uuid: <%= ENV['VM_UUID_PREFIX'] %>
+  auto_setup_new_users_with_repository: true
+  default_collection_replication: 1
+  sso_insecure: true
+  #git_repositories_dir: ~
+  #git_internal_dir: ~
+
+development:
+  # Separate settings for development configuration.
+  uuid_prefix: <%= ENV['UUID_PREFIX'] %>
+  secret_token: <%= ENV['SECRET_TOKEN'] %>
+  blob_signing_key: <%= ENV['BLOB_SIGNING_KEY'] %>
+  sso_app_secret: <%= ENV['SSO_APP_SECRET'] %>
+  sso_app_id: <%= ENV['SSO_APP_ID'] %>
+  sso_provider_url: <%= ENV['SSO_PROVIDER_URL'] %>
+  workbench_address: <%= ENV['WORKBENCH_ADDRESS'] %>
+  websocket_address: <%= ENV['WEBSOCKET_ADDRESS'] %>
+  #git_repositories_dir: ~
+  #git_internal_dir: ~
+
+test:
+  # Tests should be able to run without further configuration, but if you do
+  # want to change your local test configuration, this is where to do it.
+
+common:
+  # Settings in this section will be used in all environments
+  # (development, production, test) except when overridden in the
+  # environment-specific sections above.

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+exec 2>&1
+source /env
+exec nginx -g "daemon off;"
