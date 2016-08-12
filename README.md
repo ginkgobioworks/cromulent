@@ -38,9 +38,31 @@ dcb base; dcb passenger; dcb
 If you are doing this from scratch, this will take 10-20mins.  While the build
 is churning away, open up your generated environment file in your editor and
 adjust as needed.  Everything is setup to be ephemeral, but you could easily
-store these environment files in version control.
+store these environment files in version control.  Here is an example
+configuration:
 
-Here is a cheatsheet with a few aliases to make it easier to type:
+```bash
+./env.sh arvados.my.domain
+ARVADOS_DOMAIN=arvados.my.domain
+UUID_PREFIX=o38vl
+SSO_APP_SECRET=5NBObGf2SVWFVjSe598gvC8FeBOEBq66
+SECRET_TOKEN=HdFt2wXK1Xs2Of40xecDbXbZa3FO3XvO
+POSTGRES_USER=root
+POSTGRES_PASSWORD=dwbIVJf7sion7JUw6WkancyFF5yOSIoq
+RAILS_ENV=production
+VM_UUID_PREFIX=mBRu8WvhNzC4dhdE-o38vl
+BLOB_SIGNING_KEY=J2Q4MgqFykkJBkaDOcFpy7ApqJF71GPt
+SSO_APP_SECRET=5NBObGf2SVWFVjSe598gvC8FeBOEBq66
+SSO_APP_ID=bLPfQj9HeIlQWODiRa8G1WhLeEJfiuH8
+SSO_DEFAULT_LINK_URL=https://sso.arvados.my.domain
+SSO_PROVIDER_URL=https://sso.arvados.my.domain
+ARVADOS_LOGIN_BASE=https://o38vl.arvados.my.domain/login
+ARVADOS_V1_BASE=https://o38vl.arvados.my.domain/arvados/v1
+WORKBENCH_ADDRESS=https://workbench.arvados.my.domain
+WEBSOCKET_ADDRESS=-wss://api:8100/websocket
+```
+
+## docker-compose cheat sheet
 
 ```bash
 alias dc="docker-compose"
@@ -60,7 +82,6 @@ dcb [name]          # build the images
 dce <name> [cmd]    # run an interactive command within a new container
 dcr <name> [cmd]    # spawn a new interactive command within a running container
 ```
-
 
 ## the future
 
