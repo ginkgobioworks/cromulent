@@ -6,8 +6,3 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC
     echo deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main > /etc/apt/sources.list.d/passenger.list && \
     sudo apt-get update && \
     sudo apt-get install -y nginx-extras passenger
-
-# for passenger
-RUN mkdir -p /var/www && chown -R www-data.www-data /var/www
-RUN echo "include /etc/nginx/nginx-local.conf;" >> /etc/nginx/nginx.conf && \
-    touch /etc/nginx/nginx-local.conf

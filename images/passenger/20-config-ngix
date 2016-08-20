@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+set -e
+mkdir -p /config/nginx/conf.d/
+echo "include /config/nginx/conf.d/*" >> /etc/nginx/nginx.conf
+touch /etc/nginx/nginx-local.conf

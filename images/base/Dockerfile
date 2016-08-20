@@ -2,11 +2,10 @@ FROM ubuntu:14.04
 MAINTAINER Giles Hall <giles@ginkgobioworks.com>
 ENV DEBIAN_FRONTEND noninteractive
 
-# arvados
-ADD apt.arvados.org.list /etc/apt/sources.list.d/
+# s6 overlay, arvados, other packages
+ADD https://github.com/just-containers/s6-overlay/releases/download/v1.11.0.1/s6-overlay-amd64.tar.gz /tmp/
+RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 RUN apt-key adv --keyserver pool.sks-keyservers.net --recv 1078ECD7
-RUN apt-get update -q
-
 RUN apt-get update && apt-get install -qy \
     build-essential \
     libreadline6-dev zlib1g-dev libssl-dev \
@@ -22,15 +21,14 @@ RUN gpg --keyserver pool.sks-keyservers.net --recv-keys D39DC0E3 && \
     echo "source /usr/local/rvm/scripts/rvm" >> /etc/profile && \
     /usr/local/rvm/bin/rvm all do gem install bundler
 
-RUN mkdir -p /tmp/src && \
-    cd /tmp/src && \
-    curl http://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.7.tar.gz | tar xz && \
-    cd ruby-2.1.7 && \
-    ./configure --disable-install-rdoc && \
-    make -j8 && \
-    make install && \
-    sudo -i gem install bundler
+#RUN mkdir -p /tmp/src && \
+    #cd /tmp/src && \
+    #curl http://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.7.tar.gz | tar xz && \
+    #cd ruby-2.1.7 && \
+    #./configure --disable-install-rdoc && \
+    #make -j8 && \
+    #make install && \
+    #sudo -i gem install bundler
 
-# copy tools over
-COPY wait-for-it.sh /usr/bin/wait-for-it
-COPY etc_arvados/ /etc/arvados
+# copy root
+COPY /root /

@@ -24,12 +24,11 @@ init_app()
 
 init_env() 
 {
-    mkdir /env.puma
+    if ! -d /env.puma then; mkdir /env.puma; fi
     echo "ws-only" > /env.puma/ARVADOS_WEBSOCKETS
-    mkdir -p /var/www/arvados-api/current/tmp/cache/
-    chown www-data.www-data /var/www/arvados-api/current/tmp/cache/
+    mkdir -m 755 -p /var/www/arvados-api/current/tmp/cache/
+    chown -R www-data.www-data /var/www/
 }
-
 
 if [[ $# -eq 0 ]]; then
     init
